@@ -1,57 +1,62 @@
-const anecdotesAtStart = []
+import { addNewAnecdote, getAnecdotes, voteAPost } from '../services/anecdotes';
 
-const getId = () => (100000 * Math.random()).toFixed(0)
+const anecdotesAtStart = [];
+
+const getId = () => (100000 * Math.random()).toFixed(0);
 
 const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0
-  }
-}
+	return {
+		content: anecdote,
+		id: getId(),
+		votes: 0,
+	};
+};
 
-const initialState = anecdotesAtStart.map(asObject)
+const initialState = anecdotesAtStart.map(asObject);
 
 const reducer = (state = initialState, action) => {
-  console.log('state now: ', state)
-  console.log('action', action)
+	switch (action.type) {
+		case 'VOTE':
+			const newState = state.filter((e) => e.id !== action.data.id);
+			newState.push(action.data);
+			return newState.sort((a, b) => b.votes - a.votes);
+		case 'ADD':
+			return state.concat(action.data);
+		case 'INIT':
+			return action.data;
+		default:
+			return state;
+	}
+};
 
-  switch (action.type){
-    case 'VOTE':
-      const newState = [...state]
-      for (let anecdote of newState){
-        if (anecdote.id === action.data.id) anecdote.votes++
-      }
-      return newState.sort((a,b) => b.votes-a.votes)
-    case 'ADD':
-      return state.concat(action.data)
-    case 'INIT':
-      return action.data
-    default: return state
-  }
-}
-
-export const handleAnecdoteVotes = (id) => {
-  return {
-    type: 'VOTE',
-    data: {
-      id
-    }
-  }
-}
+export const handleAnecdoteVotes = (anecdote) => {
+	return async (dispatch) => {
+		const anecdoteUpdate = await voteAPost(anecdote);
+		dispatch({
+			type: 'VOTE',
+			data: anecdoteUpdate,
+		});
+	};
+};
 
 export const handleAddAnecdote = (anecdote) => {
-  return {
-    type: 'ADD',
-    data: anecdote
-  }
-}
+	return async (dispatch) => {
+		const Anecdote = await addNewAnecdote(anecdote);
+		dispatch({
+			type: 'ADD',
+			data: Anecdote,
+		});
+	};
+};
 
-export const handleInit = (anecdotes) => {
-  return {
-    type: 'INIT',
-    data: anecdotes
-  }
-}
+export const handleInit = () => {
+	return async (dispatch) => {
+		const anecdotes = await getAnecdotes();
+		dispatch({
+			type: 'INIT',
+			data: anecdotes,
+		});
+	};
+};
 
-export default reducer
+export default reducer;
