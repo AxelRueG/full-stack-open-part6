@@ -11,7 +11,7 @@ const Anecdote = ({ anecdote }) => {
 	const vote = (id) => {
 		console.log('vote', id);
 		dispatch(handleAnecdoteVotes(id));
-		dispatch(handleNotification('your voted: ' + anecdote.content));
+		dispatch(handleNotification(`your voted: ${anecdote.content}`));
 		setTimeout(() => {
 			dispatch(handleClearNotification());
 		}, 5000);
