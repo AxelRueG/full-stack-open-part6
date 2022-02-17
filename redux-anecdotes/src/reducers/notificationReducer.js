@@ -8,13 +8,16 @@ const notificationReducer = (state='', action) => {
   }
 }
 
+let timeInterval = null
+
 export const handleNotification = (message, time) => {
   return dispatch => {
     dispatch({
       type: 'NEW',
       data: message
     })
-    setTimeout(() => {
+    clearTimeout(timeInterval)
+    timeInterval =setTimeout(() => {
 			dispatch({ type: 'CLEAR' });
 		}, time*1000);
   } 
